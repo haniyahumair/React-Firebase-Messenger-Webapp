@@ -1,4 +1,6 @@
-import { useState, useEffect, useContext, use } from "react"
+import { useState, useEffect, useContext } from "react"
+import MessageList from "../components/MessageList"
+import Navbar from "../components/Navbar"
 import { useAuth } from '../App'
 
 export default function Chat() {
@@ -7,7 +9,8 @@ export default function Chat() {
   return (
     <div>
       <h1>Chat Page</h1>
-      <p>This is where the chat interface will go.</p>
+      <Navbar />
+      <MessageList />
     </div>
   )
 }
