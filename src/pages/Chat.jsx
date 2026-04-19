@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react"
-import { getDocs, collection } from "firebase/firestore"
+import { useState, useEffect, useRef } from "react"
+import { getDocs, collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import MessageList from "../components/MessageList"
 import Navbar from "../components/Navbar"
 import { useAuth } from '../App'
 import { db } from "../config/firebase"
 
-export default function Chat() {
-  const [inputEmail, setInputEmail] = useState("")         
+export default function Chat() {        
   const [chatTargetEmail, setChatTargetEmail] = useState("")
   const [chatTargetId, setChatTargetId] = useState("")     
   const [chatTargetName, setChatTargetName] = useState("") 
@@ -15,16 +14,15 @@ export default function Chat() {
   const [currentUserName, setCurrentUserName] = useState("")
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
-
+  const inputRef = useRef(null)
   // db refs
   const messageCollectionRef = collection(db, "messages")
   const userCollectionRef = collection(db, "users")
 
-  const emailInput = (e) => setInputEmail(e.target.value)
 
   const handleEmailSubmit = (e) => {
     e.preventDefault()
-    const candidate = inputEmail.trim().toLowerCase()
+    const candidate = (inputRef.current?.value || "").trim().toLowerCase()
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)
     if (!isValidEmail) {
       window.alert("Please enter a valid email address.")
@@ -40,7 +38,7 @@ export default function Chat() {
           setChatTargetEmail(found.email)
           setChatTargetId(found.uid || found.id)
           setChatTargetName(found.displayName || "")
-          setInputEmail("") // clear input
+          if (inputRef.current) inputRef.current.value = "" // clear input
         } else {
           window.alert("No user with that email found.")
         }
@@ -48,8 +46,8 @@ export default function Chat() {
         console.error("Error resolving recipient:", err)
       }
     }
-
     resolveRecipient()
+    inputRef.current.blur()
   }
 
   useEffect(() => {
@@ -63,7 +61,6 @@ export default function Chat() {
       try {
         const userData = await getDocs(userCollectionRef)
         const usersList = userData.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        // prefer matching by stored uid field
         const current = usersList.find(u => u.uid === user.uid || u.email === user.email)
         setCurrentUserEmail(current?.email || user.email || "")
         setCurrentUserName(
@@ -76,6 +73,28 @@ export default function Chat() {
 
     getCurrentUserDetails()
   }, [user])
+
+  //use snapshot to update the page in real time
+  useEffect(() => {
+    if (!currentUserEmail) return
+    if (!chatTargetEmail) return
+
+    const q = query(messageCollectionRef, orderBy("timestamp", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let messages = [];
+      snapshot.forEach((doc) => {
+        messages.push({ id: doc.id, ...doc.data() });
+      })
+      setMessages(messages.filter(m => 
+        (m.senderEmail === currentUserEmail && m.recipientEmail === chatTargetEmail) ||
+        (m.senderEmail === chatTargetEmail && m.recipientEmail === currentUserEmail)
+      ))
+      console.log("Messages updated in real-time.")
+       setLoading(false)
+    });
+
+    return () => unsubscribe()
+  }, [currentUserEmail, chatTargetEmail]);
 
 
   return (
@@ -91,15 +110,13 @@ export default function Chat() {
             <input
               type="email"
               placeholder="Enter email.."
-              value={inputEmail}
-              onChange={emailInput}
+              ref={inputRef}  
             />
             <button type="submit">Start Chat</button>
           </form>
         </div>
       ) : (
         <div>
-          <Navbar currentUserName={currentUserName} />
           <MessageList
             messages={messages}
             currentUserName={currentUserName}

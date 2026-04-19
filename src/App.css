@@ -4,3 +4,161 @@
   padding: 0;
   font-family: 'Poppins', sans-serif;
 }
+
+/* new styling: center a mobile-like frame (iPhone 16 Pro-ish) and style messages */
+:root{
+  --phone-w: 393px;    /* approximate iPhone width in CSS px */
+  --phone-h: 852px;    /* approximate height */
+  --bg: #eef2f6;
+  --phone-bg: #ffffff;
+  --accent: #111827;
+  --bubble-sent: #0b84ff;
+  --bubble-recv: #e5e7eb;
+  --muted: #6b7280;
+}
+
+html, body, #root {
+  height: 100%;
+  background: linear-gradient(180deg, #f7fafc 0%, #eef2f6 100%);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+nav{
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: var(--bg);
+  padding: 16px 22px;
+  background-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.1);
+  width: 100%;
+}
+
+.nav-info{
+  margin-top: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+nav p{
+  font-style: italic;
+}
+
+.message-list {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: linear-gradient(180deg, #fafafa 0%, var(--phone-bg) 100%);
+  border-radius: 36px;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.message-list > h3 {
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.data-display {
+  background: #9b9b9b33;
+  padding: 16px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* each message block */
+.message-block {
+  max-width: 84%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
+  word-break: break-word;
+}
+
+.message-block.sent {
+  background: var(--bubble-sent);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.message-block.received {
+  background: var(--bubble-recv);
+  color: #111;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+/* sender name style inside bubble */
+.message-block strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.message-list input[type="text"],
+.message-list input[type="email"],
+.message-list textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e6e9ee;
+  background: #fff;
+  outline: none;
+  font-size: 14px;
+  color: #111827;
+}
+
+.message-list .input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.message-list button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.message-list button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.message-list p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 420px) {
+  .message-list {
+    transform: scale(0.92);
+    transform-origin: top center;
+  }
+}
+
+
+@media (min-width: 1400px) {
+  body { padding: 80px; }
+}

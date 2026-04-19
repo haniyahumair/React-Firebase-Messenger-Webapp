@@ -4,10 +4,12 @@ import { useAuth } from '../App'
 export default function Navbar(props) {
     const { user, logout } = useAuth()
     return (
-        <nav style={{backgroundColor: '#333', color: '#fff', padding: '10px'}}>
+        <nav>
             <h2>Navbar</h2>
-            <p>User logged in: {props.currentUserName}</p>
-            <button onClick={logout}>Logout</button>
+            <div className="nav-info">
+                <p>User logged in: {props.currentUserName}</p>
+                <button className="logout-btn" onClick={logout} style={{backgroundColor: "#eef2f6", color:"#111827", transform: "translateY(-30%)"}}>Logout</button>
+            </div>
         </nav>
     )
 }
